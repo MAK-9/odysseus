@@ -1398,6 +1398,14 @@ document.addEventListener('DOMContentLoaded', () => {
   window.addEventListener('memory-refresh', () => {
     loadMemories();
   });
+
+  document.addEventListener('extract-session-memories', (e) => {
+    const sessionId = e.detail && e.detail.sessionId;
+    if (!sessionId) return;
+    const modal = document.getElementById('memory-modal');
+    if (modal && modal.style.display === 'none') modal.style.display = '';
+    extractMemory(sessionId);
+  });
 });
 
 const memoryModule = {
