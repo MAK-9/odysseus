@@ -219,6 +219,9 @@ def setup_memory_routes(memory_manager: MemoryManager, session_manager: SessionM
                 max_tokens=500,
                 headers=sess.headers,
             )
+            from src.text_helpers import strip_think
+            import re as _re
+            suggestion_text = strip_think(suggestion_text, prose=False, prompt_echo=False).strip()
             try:
                 suggestions = json.loads(suggestion_text)
                 if isinstance(suggestions, list):
@@ -226,7 +229,18 @@ def setup_memory_routes(memory_manager: MemoryManager, session_manager: SessionM
                 else:
                     suggestions = []
             except json.JSONDecodeError:
-                suggestions = [line.strip() for line in suggestion_text.splitlines() if line.strip()]
+                m = _re.search(r'\[[\s\S]*\]', suggestion_text)
+                if m:
+                    try:
+                        parsed = json.loads(m.group())
+                        if isinstance(parsed, list):
+                            suggestions = [s if isinstance(s, str) else s.get("text", "") for s in parsed]
+                        else:
+                            suggestions = []
+                    except Exception:
+                        suggestions = [line.strip() for line in suggestion_text.splitlines() if line.strip()]
+                else:
+                    suggestions = [line.strip() for line in suggestion_text.splitlines() if line.strip()]
 
             return {"suggestions": [s for s in suggestions if s]}
         except Exception as e:
