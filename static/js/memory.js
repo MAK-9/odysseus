@@ -1403,7 +1403,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const sessionId = e.detail && e.detail.sessionId;
     if (!sessionId) return;
     const modal = document.getElementById('memory-modal');
-    if (modal && modal.style.display === 'none') modal.style.display = '';
+    if (modal) modal.classList.remove('hidden');
+    showToast('Extracting memories…');
     extractMemory(sessionId);
   });
 });
